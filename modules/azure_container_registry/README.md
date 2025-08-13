@@ -17,7 +17,7 @@ A Terraform module that creates a secure Azure Container Registry (ACR) with pri
 
 ```hcl
 module "acr" {
-  source = "./modules/acr"
+  source = "./modules/azure_container_registry"
 
   name                = "myacrregistry"
   resource_group_name = "my-resource-group"
@@ -44,7 +44,7 @@ module "acr" {
 
 ```hcl
 module "acr" {
-  source = "./modules/acr"
+  source = "./modules/azure_container_registry"
 
   name                = "myacrregistry"
   resource_group_name = "my-resource-group" 

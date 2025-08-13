@@ -94,8 +94,8 @@ resource "random_string" "suffix" {
 }
 
 module "acr_bundle" {
-  # Point this to the ACR module
-  source = "./modules/acr"
+  # Point this to the Azure Container Registry module
+  source = "./modules/azure_container_registry"
 
   name                = "labacr${random_string.suffix.result}" # must be globally unique
   resource_group_name = azurerm_resource_group.rg.name

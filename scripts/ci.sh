@@ -20,7 +20,7 @@ NC='\033[0m' # No Color
 # Script directory
 SCRIPT_DIR="$(cd "$(dirname "${BASH_SOURCE[0]}")" &> /dev/null && pwd)"
 PROJECT_ROOT="$(dirname "${SCRIPT_DIR}")"
-MODULE_DIR="${PROJECT_ROOT}/modules/acr"
+MODULE_DIR="${PROJECT_ROOT}/modules/azure_container_registry"
 
 echo -e "${BLUE}🚀 Starting CI pipeline for ACR Terraform Module${NC}"
 echo -e "${BLUE}Project root: ${PROJECT_ROOT}${NC}"
