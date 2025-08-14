@@ -9,9 +9,14 @@
 ##############################################################################
 
 terraform {
+  required_version = ">= 1.5.0"
   required_providers {
     azurerm = {
       source  = "hashicorp/azurerm"
+      version = ">= 3.0"
+    }
+    null = {
+      source  = "hashicorp/null"
       version = ">= 3.0"
     }
   }
@@ -48,7 +53,7 @@ resource "azurerm_container_registry" "this" {
 resource "azurerm_private_endpoint" "pe" {
   for_each = var.private_endpoints
 
-  name                = each.key  # Use the map key as the private endpoint name
+  name                = each.key # Use the map key as the private endpoint name
   resource_group_name = var.resource_group_name
   location            = var.location
   subnet_id           = each.value.subnet_id

@@ -108,10 +108,10 @@ module "acr_bundle" {
   private_endpoints = {
     "lab-acr-pe-spoke1" = {
       subnet_id          = azurerm_subnet.spoke1_pl.id
-      private_ip_address = "10.10.1.10"  # Static IP within spoke1 subnet (10.10.1.0/24)
+      private_ip_address = "10.10.1.10" # Static IP within spoke1 subnet (10.10.1.0/24)
     }
     "lab-acr-pe-spoke2" = {
-      subnet_id          = azurerm_subnet.spoke2_pl.id
+      subnet_id = azurerm_subnet.spoke2_pl.id
     }
   }
 

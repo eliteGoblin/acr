@@ -75,7 +75,7 @@ variable "private_endpoints" {
 
   validation {
     condition = alltrue([
-      for pe in var.private_endpoints : 
+      for pe in var.private_endpoints :
       pe.private_ip_address == null || can(regex("^((25[0-5]|(2[0-4]|1\\d|[1-9]|)\\d)\\.?\\b){4}$", pe.private_ip_address))
     ])
     error_message = "private_ip_address must be a valid IPv4 address when specified."
