@@ -48,27 +48,48 @@ resource "azurerm_container_registry" "this" {
 resource "azurerm_private_endpoint" "pe" {
   for_each = var.private_endpoints
 
-  name                = "${var.name}-${each.key}-pe"
+  name                = each.key  # Use the map key as the private endpoint name
   resource_group_name = var.resource_group_name
   location            = var.location
   subnet_id           = each.value.subnet_id
   tags                = var.tags
 
   private_service_connection {
-    name                           = "${var.name}-${each.key}-conn"
+    name                           = "${each.key}-conn"
     private_connection_resource_id = azurerm_container_registry.this.id
     is_manual_connection           = each.value.manual_connection
     subresource_names              = each.value.subresource_names
   }
 
-  dynamic "private_dns_zone_group" {
-    for_each = length(var.private_dns_zone_ids) > 0 ? [1] : []
-
+  # Static IP configuration using ip_configuration block
+  # ACR requires specific member names for static IP assignment
+  dynamic "ip_configuration" {
+    for_each = each.value.private_ip_address != null ? [
+      {
+        name               = "${each.key}-registry-ipconfig"
+        private_ip_address = each.value.private_ip_address
+        subresource_name   = "registry"
+        member_name        = "registry"
+      },
+      {
+        name               = "${each.key}-data-ipconfig"
+        private_ip_address = join(".", concat(slice(split(".", each.value.private_ip_address), 0, 3), [tostring(tonumber(split(".", each.value.private_ip_address)[3]) + 1)]))
+        subresource_name   = "registry"
+        member_name        = "registry_data_australiaeast"
+      }
+    ] : []
     content {
-      name                 = "${var.name}-${each.key}-dnsgrp"
-      private_dns_zone_ids = var.private_dns_zone_ids
+      name               = ip_configuration.value.name
+      private_ip_address = ip_configuration.value.private_ip_address
+      subresource_name   = ip_configuration.value.subresource_name
+      member_name        = ip_configuration.value.member_name
     }
   }
+
+  # Static IP assignment is supported via private_ip_address parameter
+
+  # DNS zone management is out of scope for this module
+  # Users should handle DNS zones and linking externally
 }
 
 ##############################################################################

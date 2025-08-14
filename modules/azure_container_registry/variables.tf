@@ -28,29 +28,35 @@ variable "location" {
 
 variable "private_endpoints" {
   description = <<-EOT
-    Map of private endpoints to create for the ACR. Each private endpoint requires:
+    Map of private endpoints to create for the ACR. The map key becomes the private endpoint name,
+    allowing you to use your corporate naming conventions. Each private endpoint requires:
     - subnet_id: The ID of the subnet where the private endpoint will be created
+    - private_ip_address: Reserved for future use (static IP assignment requires additional networking configuration)
     - subresource_names: List of ACR subresources to connect to (default: ["registry"])
     - manual_connection: Whether the connection requires manual approval (default: false)
     
     Example:
     ```
     private_endpoints = {
-      spoke1 = {
-        subnet_id = "/subscriptions/.../subnets/pe-subnet"
+      "corp-prod-acr-pe-001" = {
+        subnet_id          = "/subscriptions/.../subnets/pe-subnet"
+        # private_ip_address = "10.1.1.100"  # Reserved for future use
       }
-      spoke2 = {
+      "corp-prod-acr-pe-002" = {
         subnet_id         = "/subscriptions/.../subnets/pe-subnet-2"
         subresource_names = ["registry"]
         manual_connection = false
       }
     }
     ```
+    
+    Note: DNS zone management is out of scope for this module.
   EOT
   type = map(object({
-    subnet_id         = string
-    subresource_names = optional(list(string), ["registry"])
-    manual_connection = optional(bool, false)
+    subnet_id          = string
+    private_ip_address = optional(string, null)
+    subresource_names  = optional(list(string), ["registry"])
+    manual_connection  = optional(bool, false)
   }))
 
   validation {
@@ -66,21 +72,19 @@ variable "private_endpoints" {
     ])
     error_message = "Private endpoint subresource_names must only contain 'registry' and/or 'data'."
   }
+
+  validation {
+    condition = alltrue([
+      for pe in var.private_endpoints : 
+      pe.private_ip_address == null || can(regex("^((25[0-5]|(2[0-4]|1\\d|[1-9]|)\\d)\\.?\\b){4}$", pe.private_ip_address))
+    ])
+    error_message = "private_ip_address must be a valid IPv4 address when specified."
+  }
 }
 
 ##############################################################################
 # Optional Variables
 ##############################################################################
-
-variable "private_dns_zone_ids" {
-  description = <<-EOT
-    List of existing Private DNS zone IDs to associate with the private endpoints.
-    These zones should be pre-existing in your environment and linked to the appropriate VNets.
-    Typically includes the privatelink.azurecr.io zone ID.
-  EOT
-  type        = list(string)
-  default     = []
-}
 
 variable "tags" {
   description = "A map of tags to assign to all resources created by this module."

@@ -24,14 +24,11 @@ module "acr" {
   location            = "East US"
 
   private_endpoints = {
-    spoke1 = {
-      subnet_id = "/subscriptions/.../subnets/pe-subnet"
+    "corp-prod-acr-pe-001" = {
+      subnet_id          = "/subscriptions/.../subnets/pe-subnet"
+      private_ip_address = "10.1.1.100"  # Optional: specify static IP
     }
   }
-
-  private_dns_zone_ids = [
-    "/subscriptions/.../privateDnsZones/privatelink.azurecr.io"
-  ]
 
   tags = {
     Environment = "production"
@@ -51,20 +48,18 @@ module "acr" {
   location            = "East US"
 
   private_endpoints = {
-    spoke1 = {
-      subnet_id         = "/subscriptions/.../subnets/pe-subnet-1"
-      subresource_names = ["registry"]
-      manual_connection = false
+    "corp-prod-acr-pe-001" = {
+      subnet_id          = "/subscriptions/.../subnets/pe-subnet-1"
+      private_ip_address = "10.1.1.100"  # Optional: specify static IP
+      subresource_names  = ["registry"]
+      manual_connection  = false
     }
-    spoke2 = {
+    "corp-prod-acr-pe-002" = {
       subnet_id         = "/subscriptions/.../subnets/pe-subnet-2"
       subresource_names = ["registry"]
+      # Dynamic IP assignment for this endpoint
     }
   }
-
-  private_dns_zone_ids = [
-    "/subscriptions/.../privateDnsZones/privatelink.azurecr.io"
-  ]
 
   tags = {
     Environment = "production"
@@ -121,12 +116,14 @@ This module enforces security best practices:
 - **Private Access Only**: All access is through private endpoints
 - **Validation**: Built-in validation ensures security compliance
 
-## Private DNS Requirements
+## Module Scope
 
-- Users must provide existing Private DNS zone IDs via `private_dns_zone_ids`
-- The typical zone required is `privatelink.azurecr.io`
-- DNS zones must be pre-linked to appropriate VNets
-- This module does not create or manage DNS zones or VNet links
+This module focuses solely on Azure Container Registry and Private Endpoints:
+
+- **DNS Management**: Out of scope - users handle DNS zones and linking externally
+- **Custom Naming**: Private endpoint names provided by users for corporate compliance
+- **Network Control**: Optional static IP assignment for corporate DNS/IPAM integration
+- **Security First**: All security settings are hardcoded and non-configurable
 
 ## Examples
 

@@ -104,18 +104,19 @@ module "acr_bundle" {
   # Module enforces Premium SKU and secure defaults automatically
   # No need to specify sku, public_network_access_enabled, or admin_enabled
 
-  # Private endpoints are required - DNS zones managed separately
+  # Private endpoints with corporate naming conventions and static IPs
   private_endpoints = {
-    spoke1 = {
-      subnet_id = azurerm_subnet.spoke1_pl.id
-    },
-    spoke2 = {
-      subnet_id = azurerm_subnet.spoke2_pl.id
+    "lab-acr-pe-spoke1" = {
+      subnet_id          = azurerm_subnet.spoke1_pl.id
+      private_ip_address = "10.10.1.10"  # Static IP within spoke1 subnet (10.10.1.0/24)
+    }
+    "lab-acr-pe-spoke2" = {
+      subnet_id          = azurerm_subnet.spoke2_pl.id
     }
   }
 
-  # Pass existing DNS zone ID if available
-  private_dns_zone_ids = [azurerm_private_dns_zone.acr.id]
+  # Note: DNS zone linking handled externally
+  # The azurerm_private_dns_zone.acr and links are for demonstration
 
   tags = { env = "lab" }
 }

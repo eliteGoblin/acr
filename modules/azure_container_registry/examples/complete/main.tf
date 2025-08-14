@@ -133,19 +133,20 @@ module "acr" {
   resource_group_name = azurerm_resource_group.example.name
   location            = azurerm_resource_group.example.location
 
-  # Configure private endpoints
+  # Configure private endpoints with custom corporate naming
   private_endpoints = {
-    spoke1 = {
+    "corp-prod-acr-pe-spoke1" = {
       subnet_id = azurerm_subnet.pe_subnet["spoke1"].id
     }
-    spoke2 = {
+    "corp-prod-acr-pe-spoke2" = {
       subnet_id         = azurerm_subnet.pe_subnet["spoke2"].id
       subresource_names = ["registry"]
+      # Uses dynamic IP assignment
     }
   }
 
-  # Link to existing DNS zone
-  private_dns_zone_ids = [azurerm_private_dns_zone.acr.id]
+  # Note: DNS zone management is handled externally
+  # The existing private_dns_zone.acr and VNet links are for demonstration only
 
   tags = local.tags
 }

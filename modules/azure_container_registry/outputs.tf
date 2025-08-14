@@ -45,22 +45,8 @@ output "private_endpoint_details" {
       private_ip        = try(pe.private_service_connection[0].private_ip_address, null)
       subnet_id         = pe.subnet_id
       subresource_names = pe.private_service_connection[0].subresource_names
-      dns_zone_configs  = try(pe.private_dns_zone_configs, [])
+      network_interface = pe.network_interface
     }
   }
 }
 
-output "private_endpoint_fqdns" {
-  description = "Map of private endpoint names to their fully qualified domain names from DNS zone configurations."
-  value = {
-    for k, pe in azurerm_private_endpoint.pe :
-    k => try(
-      flatten([
-        for config in pe.private_dns_zone_configs : [
-          for record in config.record_sets : record.fqdn
-        ]
-      ]),
-      []
-    )
-  }
-}
