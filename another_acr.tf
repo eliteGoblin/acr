@@ -41,9 +41,9 @@ module "devops_acrs" {
   # Private endpoint configuration
   private_endpoints = {
     (each.value.private_endpoint.name) = {
-      subnet_id         = data.azurerm_subnet.pe_subnets[each.key].id
-      subresource_names = ["registry"]
-      manual_connection = false
+      subnet_id           = data.azurerm_subnet.pe_subnets[each.key].id
+      resource_group_name = each.value.private_endpoint.resource_group
+      manual_connection   = false
     }
   }
 

@@ -19,6 +19,7 @@ container_registries:
   - name: "critssdevopsprdaue01"
     private_endpoint:
       name: "pep-itss-devops-acr-aue-01"
+      resource_group: "rg-acr-bundle-demo"  # PE will be created in subnet's RG
       subnet:
         name: "snet-privatelink"
         resource_group: "rg-acr-bundle-demo"
@@ -27,6 +28,7 @@ container_registries:
   - name: "critssdevopsprdaue02"
     private_endpoint:
       name: "pep-itss-devops-acr-aue-02"
+      resource_group: "rg-acr-bundle-demo"  # PE will be created in subnet's RG
       subnet:
         name: "snet-privatelink"
         resource_group: "rg-acr-bundle-demo"

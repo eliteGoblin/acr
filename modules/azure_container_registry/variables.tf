@@ -31,46 +31,40 @@ variable "private_endpoints" {
     Map of private endpoints to create for the ACR. The map key becomes the private endpoint name,
     allowing you to use your corporate naming conventions. Each private endpoint requires:
     - subnet_id: The ID of the subnet where the private endpoint will be created
-    - private_ip_address: Reserved for future use (static IP assignment requires additional networking configuration)
-    - subresource_names: List of ACR subresources to connect to (default: ["registry"])
+    - resource_group_name: The resource group where the private endpoint will be created (should match subnet's RG)
+    - private_ip_address: Optional static IP assignment within the subnet range
     - manual_connection: Whether the connection requires manual approval (default: false)
     
     Example:
     ```
     private_endpoints = {
       "corp-prod-acr-pe-001" = {
-        subnet_id          = "/subscriptions/.../subnets/pe-subnet"
-        # private_ip_address = "10.1.1.100"  # Reserved for future use
+        subnet_id           = "/subscriptions/.../subnets/pe-subnet"
+        resource_group_name = "rg-network-prod"
+        private_ip_address  = "10.1.1.100"  # Optional
       }
       "corp-prod-acr-pe-002" = {
-        subnet_id         = "/subscriptions/.../subnets/pe-subnet-2"
-        subresource_names = ["registry"]
-        manual_connection = false
+        subnet_id           = "/subscriptions/.../subnets/pe-subnet-2" 
+        resource_group_name = "rg-network-prod"
+        manual_connection   = false
       }
     }
     ```
     
-    Note: DNS zone management is out of scope for this module.
+    Note: 
+    - Private endpoints are always configured for ACR "registry" subresource
+    - DNS zone management is out of scope for this module
   EOT
   type = map(object({
-    subnet_id          = string
-    private_ip_address = optional(string, null)
-    subresource_names  = optional(list(string), ["registry"])
-    manual_connection  = optional(bool, false)
+    subnet_id           = string
+    resource_group_name = string
+    private_ip_address  = optional(string, null)
+    manual_connection   = optional(bool, false)
   }))
 
   validation {
     condition     = length(var.private_endpoints) > 0
     error_message = "At least one private endpoint must be configured for secure ACR access."
-  }
-
-  validation {
-    condition = alltrue([
-      for pe in var.private_endpoints : alltrue([
-        for subresource in pe.subresource_names : contains(["registry", "data"], subresource)
-      ])
-    ])
-    error_message = "Private endpoint subresource_names must only contain 'registry' and/or 'data'."
   }
 
   validation {

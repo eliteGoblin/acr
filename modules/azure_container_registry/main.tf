@@ -54,7 +54,7 @@ resource "azurerm_private_endpoint" "pe" {
   for_each = var.private_endpoints
 
   name                = each.key # Use the map key as the private endpoint name
-  resource_group_name = var.resource_group_name
+  resource_group_name = each.value.resource_group_name
   location            = var.location
   subnet_id           = each.value.subnet_id
   tags                = var.tags
@@ -63,7 +63,7 @@ resource "azurerm_private_endpoint" "pe" {
     name                           = "${each.key}-conn"
     private_connection_resource_id = azurerm_container_registry.this.id
     is_manual_connection           = each.value.manual_connection
-    subresource_names              = each.value.subresource_names
+    subresource_names              = ["registry"]
   }
 
   # Static IP configuration using ip_configuration block
